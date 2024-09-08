@@ -19,7 +19,15 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<IUser> {
-    return await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.find({
+      where: {
+        id: id
+      },
+      relations: ['schools']
+    }).then((res) => {
+      return res
+    })
+    return user[0]
   }
 
   async create(user: IUser): Promise<IUser> {
@@ -30,7 +38,7 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async delete(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+  async delete(user: IUser): Promise<IUser> {
+    return await this.userRepository.save(user);
   }
 }
