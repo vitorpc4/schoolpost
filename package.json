@@ -27,7 +27,6 @@
     "migration:show": "npx typeorm-ts-node-commonjs migration:show -d ./src/database/data-source.ts",
     "migration:run": "npx typeorm-ts-node-commonjs migration:run -d  ./src/database/data-source.ts",
     "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d ./src/database/data-source.ts",
-    "database:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create  -d src/database/data-source.ts",
     "db:create": "npx ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create"
   },
   "dependencies": {
