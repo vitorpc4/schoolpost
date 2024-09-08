@@ -59,6 +59,9 @@ export class Post implements IPost {
   })
   status: boolean;
 
+  @ManyToOne(() => User, (user) => user.schools)
+  user: IUser;
+
   @ManyToOne(() => School, (school) => school.posts)
   school: ISchool;
 }
