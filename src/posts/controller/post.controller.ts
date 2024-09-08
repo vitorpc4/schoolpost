@@ -15,6 +15,7 @@ import {
 import { Response } from 'express';
 import { z } from 'zod';
 import { SchoolsService } from '@/services/school.service';
+import { UsersService } from '@/services/user.service';
 
 const createPostScheme = z.object({
   title: z.string(),
@@ -22,6 +23,7 @@ const createPostScheme = z.object({
   isDraft: z.boolean(),
   status: z.boolean(),
   schoolId: z.coerce.string(),
+  userId: z.coerce.number()
 });
 
 const updatePostScheme = z.object({
@@ -50,6 +52,7 @@ export class PostController {
   constructor(
     private postsService: PostsService,
     private schoolService: SchoolsService,
+    private userService: UsersService
   ) {}
 
   @Get()
@@ -66,13 +69,35 @@ export class PostController {
     return await this.postsService.findById(id);
   }
 
+  @Get('school/:id')
+  async getPostBySchoolId(
+    @Param('id') id: number,
+    @Query(new ZodValidationPipe(getAllPosts)) { page, limit }: GetAllPosts,
+  ) {
+    return await this.postsService.findPostBySchoolId(id, page, limit);
+  }
+
+  @Get('school/draft/:id')
+  async getDraftPostBySchoolId(
+    @Param('id') id: number,
+    @Query(new ZodValidationPipe(getAllPosts)) { page, limit }: GetAllPosts,
+  ) {
+    return await this.postsService.findDraftPostBySchoolId(id, page, limit);
+  }
+
   @Post()
   async createPost(
     @Body(new ZodValidationPipe(createPostScheme))
-    { title, content, isDraft, status, schoolId }: CreatePost,
+    { title, content, isDraft, schoolId,status,userId }: CreatePost,
     @Res() response: Response,
   ) {
-    const school = await this.schoolService.findById(schoolId);
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      return response.status(404).json('User not found');
+    }
+
+    const school = user.schools.find(x => { return x.id === schoolId});
 
     if (!school) {
       return response.status(404).json('School not found');
@@ -83,7 +108,8 @@ export class PostController {
       content,
       isDraft,
       status,
-      school,
+      user,
+      school
     });
 
     return response.status(201).send(result);
