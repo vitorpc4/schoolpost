@@ -82,7 +82,7 @@ export class User implements IUser {
   })
   admin: boolean;
 
-  @ManyToMany(() => School)
+  @ManyToMany(() => School, (school) => school.users)
   @JoinTable({
     name: 'user_school',
     joinColumn: {

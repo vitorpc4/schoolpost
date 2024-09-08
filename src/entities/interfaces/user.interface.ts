@@ -1,5 +1,4 @@
 import { TypeUser } from '../models/user.entity';
-import { IPost } from './posts.interface';
 import { ISchool } from './school.interface';
 
 export interface IUser {

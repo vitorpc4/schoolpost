@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -9,6 +10,7 @@ import { ISchool } from '../interfaces/school.interface';
 import { IUser } from '../interfaces/user.interface';
 import { Post } from './post.entity';
 import { IPost } from '../interfaces/posts.interface';
+import { User } from './user.entity';
 
 @Entity({
   name: 'school',
@@ -39,6 +41,8 @@ export class School implements ISchool {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt?: Date;
+
+  @ManyToMany(() => User, (user) => user.schools)
   users: IUser[];
 
   @OneToMany(() => Post, (post) => post.school)
