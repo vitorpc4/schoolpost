@@ -25,7 +25,7 @@ const createUserScheme = z.object({
   admin: z.boolean(),
   status: z.boolean(),
   TypeUser: z.nativeEnum(TypeUser),
-  schoolIds: z.array(z.coerce.string()),
+  schoolIds: z.array(z.coerce.string()).optional(),
 });
 
 const updateUserScheme = z.object({
@@ -34,7 +34,7 @@ const updateUserScheme = z.object({
   admin: z.boolean(),
   status: z.boolean(),
   TypeUser: z.nativeEnum(TypeUser),
-  schoolIds: z.array(z.coerce.string()),
+  schoolIds: z.array(z.coerce.string().uuid("Invalid UUID")).optional(),
 });
 
 const getUsersByIdScheme = z.object({
@@ -88,15 +88,17 @@ export class UserController {
   ) {
     let schoolArrays: ISchool[] = [];
 
-    await Promise.all(
-      schoolIds.map(async (element) => {
-        const schools = await this.schoolsService.findById(element);
-        schoolArrays.push(schools);
-      }),
-    );
+    if (schoolIds) {
+      await Promise.all(
+        schoolIds.map(async (element) => {
+          const schools = await this.schoolsService.findById(element);
+          schoolArrays.push(schools);
+        }),
+      );
 
-    if (schoolArrays.length === 0) {
-      return response.status(404).json('Schools not found');
+      if (schoolArrays.length === 0) {
+        return response.status(404).json('Schools not found');
+      }
     }
 
     const result = await this.usersServices.create({
@@ -117,26 +119,36 @@ export class UserController {
     @Param(new ZodValidationPipe(getUsersByIdScheme)) { id }: GetUserById,
     @Body(new ZodValidationPipe(updateUserScheme))
     { username, email, TypeUser, admin, status, schoolIds }: Updateuser,
-    @Res() response: Response,
+    @Res() response: Response
   ) {
     let user = (await this.usersServices.findById(id)) as IUser;
     if (!user) {
       return response.status(404).json('User not found');
     }
 
-    user.schools = [];
+    const promises = [];
 
-    let schoolArrays = [] as ISchool[];
+    if (schoolIds) {
+      for (let i=0; i < schoolIds.length; i++) {
+        let schoolId = schoolIds[i];
 
-    await Promise.all(
-      schoolIds.map(async (element) => {
-        const schools = await this.schoolsService.findById(element);
-        user.schools.push(schools);
-      }),
-    );
+        const findSchool = user.schools.find(x => x.id === schoolId);
 
-    if (user.schools.length === 0) {
-      return response.status(404).json('Schools not found');
+        if (!findSchool) {
+          promises.push(this.schoolsService.findById(schoolId));
+        }
+      }
+    }
+
+    if (promises.length > 0) {
+      const schools = (await Promise.allSettled(promises).then((results) => {
+        const allValue = (results.filter(x => x.status === 'fulfilled') as PromiseFulfilledResult<ISchool>[])
+          .map(x => x.value);
+        
+        return allValue;
+      })).filter(x => x);
+
+      user.schools.push(...schools)
     }
 
     user.id = id;
@@ -145,6 +157,7 @@ export class UserController {
     user.admin = admin;
     user.status = status;
     user.TypeUser = TypeUser;
+    user.updatedAt = new Date();
 
     const result = await this.usersServices.update(user);
 
@@ -153,7 +166,10 @@ export class UserController {
 
   @Delete(':id')
   async deleteUser(@Param('id') id: number, @Res() response: Response) {
-    await this.usersServices.delete(id);
+    const user = await this.usersServices.findById(id);
+    user.status = false;
+    user.updatedAt = new Date();
+    await this.usersServices.delete(user);
 
     return response.status(204).send();
   }
