@@ -14,4 +14,5 @@ export default new DataSource({
   entities: [Post, User, School],
   migrationsTableName: 'migration',
   migrations: ['src/migrations/*.ts'],
+  migrationsRun: false,
 });
