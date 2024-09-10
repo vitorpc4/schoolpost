@@ -42,10 +42,15 @@ const getAllPosts = z.object({
   page: z.coerce.number().default(1),
 });
 
+const getPostByKeyWord = z.object({
+  search: z.coerce.string()
+})
+
 type CreatePost = z.infer<typeof createPostScheme>;
 type GetPostById = z.infer<typeof getPostByIdScheme>;
 type UpdatePost = z.infer<typeof updatePostScheme>;
 type GetAllPosts = z.infer<typeof getAllPosts>;
+type GetPostByKeyWord = z.infer<typeof getPostByKeyWord>;
 
 @Controller('post')
 export class PostController {
@@ -83,6 +88,11 @@ export class PostController {
     @Query(new ZodValidationPipe(getAllPosts)) { page, limit }: GetAllPosts,
   ) {
     return await this.postsService.findDraftPostBySchoolId(id, page, limit);
+  }
+
+  @Get('find/school')
+  async getPostByKeyWord(@Query(new ZodValidationPipe(getPostByKeyWord)) { search }: GetPostByKeyWord) {
+    return await this.postsService.findPostByKeyWord(search);
   }
 
   @Post()
