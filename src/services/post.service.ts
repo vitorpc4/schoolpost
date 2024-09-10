@@ -61,4 +61,11 @@ export class PostsService {
                 .take(take)
                 .getMany();
   }
+
+  async findPostByKeyWord(search: string): Promise<IPost[]> {
+    return await this.postRepository.createQueryBuilder('post')
+                .where('post.title ILIKE :search', { search: `%${search}%` })
+                .orWhere('post.content ILIKE :search', { search: `%${search}%` })
+                .getMany();
+  }
 }
