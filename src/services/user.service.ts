@@ -30,6 +30,18 @@ export class UsersService {
     return user[0]
   }
 
+  async findUserByEmail(email: string): Promise<IUser> {
+    const user = await this.userRepository.find({
+      where: {
+        email: email
+      },
+      relations: ['schools']
+    }).then((res) => {
+      return res
+    })
+    return user[0]
+  }
+
   async create(user: IUser): Promise<IUser> {
     return await this.userRepository.save(user);
   }
