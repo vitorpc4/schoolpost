@@ -11,9 +11,11 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { query, Response } from 'express';
 import { z } from 'zod';
+import { AuthGuard } from '@/auth/auth.guard';
 
 const createSchoolScheme = z.object({
   name: z.string(),
@@ -39,6 +41,7 @@ type GetSchoolById = z.infer<typeof getSchoolByIdScheme>;
 type UpdateSchool = z.infer<typeof updateSchoolScheme>;
 type GetAllSchools = z.infer<typeof getAllSchols>;
 
+@UseGuards(AuthGuard)
 @Controller('school')
 export class SchoolController {
   constructor(private schoolsService: SchoolsService) {}

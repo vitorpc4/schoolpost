@@ -1,3 +1,4 @@
+import { AuthGuard } from '@/auth/auth.guard';
 import { ISchool } from '@/entities/interfaces/school.interface';
 import { IUser } from '@/entities/interfaces/user.interface';
 import { TypeUser } from '@/entities/models/user.entity';
@@ -14,6 +15,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { promise, z } from 'zod';
@@ -51,6 +53,8 @@ type GetUserById = z.infer<typeof getUsersByIdScheme>;
 type Updateuser = z.infer<typeof updateUserScheme>;
 type GetAllUsers = z.infer<typeof getAllUsers>;
 
+
+@UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(
