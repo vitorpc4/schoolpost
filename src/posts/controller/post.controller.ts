@@ -11,11 +11,13 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { z } from 'zod';
 import { SchoolsService } from '@/services/school.service';
 import { UsersService } from '@/services/user.service';
+import { AuthGuard } from '@/auth/auth.guard';
 
 const createPostScheme = z.object({
   title: z.string(),
@@ -52,6 +54,8 @@ type UpdatePost = z.infer<typeof updatePostScheme>;
 type GetAllPosts = z.infer<typeof getAllPosts>;
 type GetPostByKeyWord = z.infer<typeof getPostByKeyWord>;
 
+
+@UseGuards(AuthGuard)
 @Controller('post')
 export class PostController {
   constructor(
