@@ -13,7 +13,7 @@ import { UsersModule } from '@/users/users.module';
     JwtModule.register({
       global: true,
       secret: env.JWT_SECRET,
-      signOptions: { expiresIn: '120s' }
+      signOptions: { expiresIn: env.JWT_EXPIRES_IN }
     })
   ]
 })
