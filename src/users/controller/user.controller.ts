@@ -18,7 +18,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { promise, z } from 'zod';
+import { z } from 'zod';
 
 const createUserScheme = z.object({
   username: z.string(),
@@ -158,7 +158,6 @@ export class UserController {
         user.schools.push(...schools)
       }
       
-
       user.id = id;
       user.username = username;
       user.email = email;
