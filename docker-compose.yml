@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres
+    container_name: postgresdb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+  app:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=production
+      - DATABASE_HOST=postgresdb
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=schoolpost
+      - DATABASE_PORT=5432
+      - PORT=3000
+      - JWT_SECRET=secret
+      - JWT_EXPIRES_IN=120m
