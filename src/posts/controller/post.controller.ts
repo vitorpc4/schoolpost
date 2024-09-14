@@ -56,7 +56,7 @@ type GetPostByKeyWord = z.infer<typeof getPostByKeyWord>;
 
 
 @UseGuards(AuthGuard)
-@Controller('post')
+@Controller('posts')
 export class PostController {
   constructor(
     private postsService: PostsService,
