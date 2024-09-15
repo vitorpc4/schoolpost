@@ -28,6 +28,5 @@ jobs:
             --build-arg DATABASE_PORT=${{ secrets.DATABASE_PORT }} \ 
             --build-arg PORT=${{ secrets.PORT }} \ 
             --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \ 
-            --build-arg JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} \ 
-            .
-          docker push $DOCKER_USERNAME/pettechstock:latest
+            --build-arg JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} .
+          docker push $DOCKER_USERNAME/schoolpost:latest
