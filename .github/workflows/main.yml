@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DOCKER_USERNAME: ${{ actions.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ actions.DOCKER_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
     steps:
       - name: Checkout Repository
@@ -21,13 +21,13 @@ jobs:
         run: |
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
           docker build -t $DOCKER_USERNAME/schoolpost:latest \ 
-            --build-arg NODE_ENV=${{ actions.NODE_ENV }} \
-            --build-arg DATABASE_HOST=${{ actions.DATABASE_HOST }} \
-            --build-arg DATABASE_USER=${{ actions.DATABASE_USER }} \
-            --build-arg DATABASE_PASSWORD=${{ actions.DATABASE_PASSWORD }} \ 
-            --build-arg DATABASE_PORT=${{ actions.DATABASE_PORT }} \ 
-            --build-arg PORT=${{ actions.PORT }} \ 
-            --build-arg JWT_SECRET=${{ actions.JWT_SECRET }} \ 
-            --build-arg JWT_EXPIRES_IN=${{ actions.JWT_EXPIRES_IN }} \ 
+            --build-arg NODE_ENV=${{ secrets.NODE_ENV }} \
+            --build-arg DATABASE_HOST=${{ secrets.DATABASE_HOST }} \
+            --build-arg DATABASE_USER=${{ secrets.DATABASE_USER }} \
+            --build-arg DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \ 
+            --build-arg DATABASE_PORT=${{ secrets.DATABASE_PORT }} \ 
+            --build-arg PORT=${{ secrets.PORT }} \ 
+            --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \ 
+            --build-arg JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }} \ 
             .
           docker push $DOCKER_USERNAME/pettechstock:latest
