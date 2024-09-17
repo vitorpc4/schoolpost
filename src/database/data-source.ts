@@ -1,7 +1,7 @@
-import { env } from '../env';
-import { Post } from '../entities/models/post.entity';
-import { User } from '../entities/models/user.entity';
-import { School } from '../entities/models/school.entity';
+import { env } from '@/env';
+import { Post } from '@/entities/models/post.entity';
+import { User } from '@/entities/models/user.entity';
+import { School } from '@/entities/models/school.entity';
 import { DataSource } from 'typeorm';
 
 export default new DataSource({
