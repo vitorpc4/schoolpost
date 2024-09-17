@@ -60,7 +60,6 @@ type GetPostByKeyWord = z.infer<typeof getPostByKeyWord>;
 export class PostController {
   constructor(
     private postsService: PostsService,
-    private schoolService: SchoolsService,
     private userService: UsersService
   ) {}
 
