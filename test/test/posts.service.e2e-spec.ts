@@ -84,7 +84,37 @@ describe('PostService', () => {
         repositorySchool = module.get<Repository<School>>(getRepositoryToken(School));
     });
 
-    
+    it('deve trazer um post', async () => {
+        const id: number = 1.
+
+        postService.findById = jest.fn().mockReturnValueOnce({
+            id,
+            title: "Teste",
+            content: "Teste",
+            isDraft: false,
+            status: true,
+            school: {
+                id: "04c0dde30654419ab1f01007a2297027",
+                name: "Teste",
+                status: true,
+                users: [1],
+                posts: []
+            },
+            user: {
+                id: 1,
+                name: "Teste",
+                email: "teste@gmail.com",
+                admin: true,
+            }
+        })
+        
+        const result = await postService.findById(id);
+        
+
+        log(result);
+
+        expect(result.id).toEqual(id);
+    })
 
     it('Solicitação de todos os posts', async () => {
         const result = await postService.findAll(1, 10);
