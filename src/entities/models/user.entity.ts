@@ -2,21 +2,11 @@ import { IUser } from '@/entities/interfaces/user.interface';
 import {
   Column,
   Entity,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IPost } from '../interfaces/posts.interface';
-import { Post } from './post.entity';
-import { ISchool } from '../interfaces/school.interface';
-import { School } from './school.entity';
-
-export enum TypeUser {
-  Professor = 'Professor',
-  Editor = 'Editor',
-  Student = 'Student',
-}
+import { IUserSchoolAssociation } from '../interfaces/userSchoolAssociation.interface';
+import { userSchoolAssociation } from './userSchoolAssociation.entity';
 
 @Entity({
   name: 'user',
@@ -67,32 +57,7 @@ export class User implements IUser {
     type: 'boolean',
   })
   status: boolean;
-
-  @Column({
-    type: 'enum',
-    enum: TypeUser,
-    default: TypeUser.Professor,
-  })
-  TypeUser: TypeUser;
-
-  @Column({
-    name: 'admin',
-    type: 'boolean',
-    default: false,
-  })
-  admin: boolean;
-
-  @ManyToMany(() => School, (school) => school.users)
-  @JoinTable({
-    name: 'user_school',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'school_id',
-      referencedColumnName: 'id',
-    },
-  })
-  schools?: ISchool[];
+  
+  @OneToMany(() => userSchoolAssociation, (userSchoolAssociation) => userSchoolAssociation.user)
+  userSchoolAssociation?: IUserSchoolAssociation[];
 }

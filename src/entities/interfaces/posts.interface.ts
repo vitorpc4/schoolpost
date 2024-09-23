@@ -1,5 +1,6 @@
 import { ISchool } from './school.interface';
 import { IUser } from './user.interface';
+import { IUserSchoolAssociation } from './userSchoolAssociation.interface';
 
 export interface IPost {
   id?: number;
@@ -9,6 +10,5 @@ export interface IPost {
   updatedAt?: Date;
   isDraft: boolean;
   status: boolean;
-  user: IUser;
-  school: ISchool;
+  userSchoolAssociation: IUserSchoolAssociation;
 }

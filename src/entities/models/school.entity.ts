@@ -11,6 +11,8 @@ import { IUser } from '../interfaces/user.interface';
 import { Post } from './post.entity';
 import { IPost } from '../interfaces/posts.interface';
 import { User } from './user.entity';
+import { IUserSchoolAssociation } from '../interfaces/userSchoolAssociation.interface';
+import { userSchoolAssociation } from './userSchoolAssociation.entity';
 
 @Entity({
   name: 'school',
@@ -42,9 +44,6 @@ export class School implements ISchool {
   })
   updatedAt?: Date;
 
-  @ManyToMany(() => User, (user) => user.schools)
-  users: IUser[];
-
-  @OneToMany(() => Post, (post) => post.school)
-  posts: IPost[];
+  @OneToMany(() => userSchoolAssociation, (userSchoolAssociation) => userSchoolAssociation.user)
+  userSchoolAssociation?: IUserSchoolAssociation[];
 }
