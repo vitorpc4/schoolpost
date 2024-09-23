@@ -19,23 +19,14 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<IUser> {
-    const user = await this.userRepository.find({
-      where: {
-        id: id
-      },
-      relations: ['schools']
-    }).then((res) => {
-      return res
-    })
-    return user[0]
+    return await this.userRepository.findOneBy({ id });
   }
 
   async findUserByEmail(email: string): Promise<IUser> {
     const user = await this.userRepository.find({
       where: {
         email: email
-      },
-      relations: ['schools']
+      }
     }).then((res) => {
       return res
     })

@@ -2,7 +2,7 @@ import { IPost } from '@/entities/interfaces/posts.interface';
 import { Post } from '@/entities/models/post.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 
 @Injectable()
 export class PostsService {
@@ -19,7 +19,7 @@ export class PostsService {
   }
 
   async findById(id: number): Promise<IPost> {
-    return await this.postRepository.findOneBy({ id });
+    return await this.postRepository.findOneBy({ id: id, status:true });
   }
 
   async create(post: IPost): Promise<IPost> {
@@ -34,13 +34,11 @@ export class PostsService {
     await this.postRepository.delete(id);
   }
 
-  async findPostBySchoolId(schoolId: number, page:number, limit: number): Promise<IPost[]> {
+  async findPostByAssociationId(associationId: number[], page: number, limit: number) {
     const skip = (page - 1) * limit
     const take = limit
-
     return await this.postRepository.createQueryBuilder('post')
-                .innerJoin('post.school', 'school')
-                .where('school.id = :schoolId', { schoolId })
+                .where('post.userSchoolAssociationId IN (:...ids)', { ids: associationId })
                 .andWhere('post.status = true')
                 .andWhere('post.is_draft=false')
                 .skip(skip)
@@ -48,13 +46,12 @@ export class PostsService {
                 .getMany();
   }
 
-  async findDraftPostBySchoolId(schoolId: number, page:number, limit: number): Promise<IPost[]> {
+  async findDraftsByAssociationId(associationId: number[], page: number, limit: number) {
     const skip = (page - 1) * limit
     const take = limit
 
     return await this.postRepository.createQueryBuilder('post')
-                .innerJoin('post.school', 'school')
-                .where('school.id = :schoolId', { schoolId })
+                .where('post.userSchoolAssociationId IN (:...ids)', { ids: associationId })
                 .andWhere('post.status = true')
                 .andWhere('post.is_draft=true')
                 .skip(skip)
@@ -62,10 +59,16 @@ export class PostsService {
                 .getMany();
   }
 
-  async findPostByKeyWord(search: string): Promise<IPost[]> {
+  async findPostByKeyWord(associationId:number[], search: string, page: number, limit: number): Promise<IPost[]> {
     return await this.postRepository.createQueryBuilder('post')
-                .where('post.title ILIKE :search', { search: `%${search}%` })
-                .orWhere('post.content ILIKE :search', { search: `%${search}%` })
+                .where('post.userSchoolAssociationId IN (:...ids)', { ids: associationId })
+                .andWhere('post.status = true')
+                .andWhere(new Brackets(qb => {
+                  qb.where('post.title ILIKE :search', { search: `%${search}%` })
+                  .orWhere('post.content ILIKE :search', { search: `%${search}%` })
+                }))
+                .skip((page - 1) * limit)
+                .take(limit)
                 .getMany();
   }
 }
