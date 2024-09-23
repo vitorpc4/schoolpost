@@ -1,5 +1,4 @@
-import { IPost } from './posts.interface';
-import { IUser } from './user.interface';
+import { IUserSchoolAssociation } from "./userSchoolAssociation.interface";
 
 export interface ISchool {
   id?: string;
@@ -7,6 +6,5 @@ export interface ISchool {
   createdAt?: Date;
   status: boolean;
   updatedAt?: Date;
-  users?: IUser[];
-  posts?: IPost[];
+  userSchoolAssociation?: IUserSchoolAssociation[];
 }

@@ -1,5 +1,4 @@
-import { TypeUser } from '../models/user.entity';
-import { ISchool } from './school.interface';
+import { IUserSchoolAssociation } from "./userSchoolAssociation.interface";
 
 export interface IUser {
   id?: number;
@@ -9,7 +8,5 @@ export interface IUser {
   createdAt?: Date;
   status: boolean;
   updatedAt?: Date;
-  TypeUser: TypeUser;
-  admin: boolean;
-  schools?: ISchool[];
+  userSchoolAssociation?: IUserSchoolAssociation[];
 }

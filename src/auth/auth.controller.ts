@@ -39,7 +39,6 @@ export class AuthController {
             email: userCreated.email,
             username: userCreated.username,
             id: userCreated.id,
-            type: userCreated.TypeUser
         });
     }
 }

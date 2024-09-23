@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
@@ -12,6 +12,9 @@ import { SchoolModule } from './school/school.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { UserSchoolAssociationController } from './user-school-association/controllers/association.controller';
+import { UserSchoolAssociationModule } from './user-school-association/user-school-association.module';
+import { CheckUserMiddleware } from './middleware/CheckUser.middleware';
 
 @Module({
   imports: [
@@ -43,8 +46,14 @@ import { AuthGuard } from './auth/auth.guard';
     UsersModule,
     SchoolModule,
     AuthModule,
+    UserSchoolAssociationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CheckUserMiddleware)
+      .forRoutes('school', 'users', 'posts', 'association');
+  }
+}

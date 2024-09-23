@@ -6,6 +6,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Post,
   Put,
@@ -14,53 +15,21 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { z } from 'zod';
-import { SchoolsService } from '@/services/school.service';
-import { UsersService } from '@/services/user.service';
 import { AuthGuard } from '@/auth/auth.guard';
-
-const createPostScheme = z.object({
-  title: z.string(),
-  content: z.string(),
-  isDraft: z.boolean(),
-  status: z.boolean(),
-  schoolId: z.coerce.string(),
-  userId: z.coerce.number()
-});
-
-const updatePostScheme = z.object({
-  title: z.string(),
-  content: z.string(),
-  isDraft: z.boolean(),
-  status: z.boolean(),
-});
-
-const getPostByIdScheme = z.object({
-  id: z.coerce.number(),
-});
-
-const getAllPosts = z.object({
-  limit: z.coerce.number().default(10),
-  page: z.coerce.number().default(1),
-});
-
-const getPostByKeyWord = z.object({
-  search: z.coerce.string()
-})
-
-type CreatePost = z.infer<typeof createPostScheme>;
-type GetPostById = z.infer<typeof getPostByIdScheme>;
-type UpdatePost = z.infer<typeof updatePostScheme>;
-type GetAllPosts = z.infer<typeof getAllPosts>;
-type GetPostByKeyWord = z.infer<typeof getPostByKeyWord>;
-
+import { CreatePost, createPostScheme } from '../TypesRequestZod/CreatePost.Type';
+import { UpdatePost, updatePostScheme } from '../TypesRequestZod/UpdatePost.Type';
+import { GetPostById, getPostByIdScheme } from '../TypesRequestZod/GetPostById.Type';
+import { GetAllPosts, getAllPosts } from '../TypesRequestZod/GetAllPost.Type';
+import { GetPostByKeyWord, getPostByKeyWord } from '../TypesRequestZod/GetPostByKeyWord';
+import { UserSchoolAssociationService } from '@/services/userSchoolAssociation.service';
+import { TypeUser } from '@/entities/models/userSchoolAssociation.entity';
 
 @UseGuards(AuthGuard)
 @Controller('posts')
 export class PostController {
   constructor(
+    private userSchoolAssociationService: UserSchoolAssociationService,
     private postsService: PostsService,
-    private userService: UsersService
   ) {}
 
   @Get()
@@ -79,41 +48,52 @@ export class PostController {
 
   @Get('school/:id')
   async getPostBySchoolId(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Query(new ZodValidationPipe(getAllPosts)) { page, limit }: GetAllPosts,
   ) {
-    return await this.postsService.findPostBySchoolId(id, page, limit);
+    const result = await this.userSchoolAssociationService.findAllBySchoolIdAndTypeUser(id, TypeUser.Professor);
+
+    const getAssociationsIds = result.map((item) => item.id);
+
+    const posts = await this.postsService.findPostByAssociationId(getAssociationsIds, page, limit);
+
+    return posts;
   }
 
   @Get('school/draft/:id')
   async getDraftPostBySchoolId(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Query(new ZodValidationPipe(getAllPosts)) { page, limit }: GetAllPosts,
   ) {
-    return await this.postsService.findDraftPostBySchoolId(id, page, limit);
+    const result = await this.userSchoolAssociationService.findAllBySchoolIdAndTypeUser(id, TypeUser.Professor);
+
+    const getAssociationsIds = result.map((item) => item.id);
+
+    return await this.postsService.findDraftsByAssociationId(getAssociationsIds, page, limit);
   }
 
   @Get('find/school')
-  async getPostByKeyWord(@Query(new ZodValidationPipe(getPostByKeyWord)) { search }: GetPostByKeyWord) {
-    return await this.postsService.findPostByKeyWord(search);
+  async getPostByKeyWord(@Query(new ZodValidationPipe(getPostByKeyWord)) { search }: GetPostByKeyWord,
+    @Query(new ZodValidationPipe(getAllPosts)) { page, limit }: GetAllPosts,
+    @Headers('X-SchoolId') id: string) {
+
+    const result = await this.userSchoolAssociationService.findAllBySchoolIdAndTypeUser(id, TypeUser.Professor);
+
+    const getAssociationsIds = result.map((item) => item.id);
+
+    return await this.postsService.findPostByKeyWord(getAssociationsIds, search, page, limit);
   }
 
   @Post()
   async createPost(
     @Body(new ZodValidationPipe(createPostScheme))
-    { title, content, isDraft, schoolId,status,userId }: CreatePost,
+    { title, content, isDraft,status,associationSchool }: CreatePost,
     @Res() response: Response,
   ) {
-    const user = await this.userService.findById(userId);
+    const userSchoolAssociation = await this.userSchoolAssociationService.findById(associationSchool);
 
-    if (!user) {
-      return response.status(404).json('User not found');
-    }
-
-    const school = user.schools.find(x => { return x.id === schoolId});
-
-    if (!school) {
-      return response.status(404).json('School not found');
+    if (!userSchoolAssociation) {
+      return response.status(404).json('User School Association not found');
     }
 
     const result = await this.postsService.create({
@@ -121,8 +101,7 @@ export class PostController {
       content,
       isDraft,
       status,
-      user,
-      school
+      userSchoolAssociation
     });
 
     return response.status(201).send(result);

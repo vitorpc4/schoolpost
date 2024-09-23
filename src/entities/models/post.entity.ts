@@ -2,14 +2,12 @@ import { IPost } from '@/entities/interfaces/posts.interface';
 import {
   Column,
   Entity,
-  JoinTable,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from './user.entity';
-import { IUser } from '../interfaces/user.interface';
-import { ISchool } from '../interfaces/school.interface';
-import { School } from './school.entity';
+import { IUserSchoolAssociation } from '../interfaces/userSchoolAssociation.interface';
+import { userSchoolAssociation } from './userSchoolAssociation.entity';
 
 @Entity({
   name: 'post',
@@ -47,6 +45,7 @@ export class Post implements IPost {
   })
   updatedAt?: Date;
 
+  @Index("is_draft")
   @Column({
     name: 'is_draft',
     type: 'boolean',
@@ -59,9 +58,6 @@ export class Post implements IPost {
   })
   status: boolean;
 
-  @ManyToOne(() => User, (user) => user.schools)
-  user: IUser;
-
-  @ManyToOne(() => School, (school) => school.posts)
-  school: ISchool;
+  @ManyToOne(() => userSchoolAssociation, (userSchoolAssociation) => userSchoolAssociation.post)
+  userSchoolAssociation: IUserSchoolAssociation;
 }
