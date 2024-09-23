@@ -1,14 +1,15 @@
 import { IUser } from '@/entities/interfaces/user.interface';
-import { TypeUser } from '@/entities/models/user.entity';
 import { UsersService } from '@/services/user.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UserSchoolAssociationService } from './userSchoolAssociation.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
+        private usersSchoolAssociationService: UserSchoolAssociationService,
         private jwtService:JwtService
     ){}
 
@@ -22,8 +23,14 @@ export class AuthService {
         const isMatch = await bcrypt.compare(pass, user.password)
 
         if (!isMatch) throw new UnauthorizedException()
+        
+        const schools = await this.usersSchoolAssociationService.findAllByUserId(user.id)
+        
+        let payload = { sub: user.id, userName: user.username, schools: [] }
 
-        const payload = { sub: user.id , userName: user.username, type: user.TypeUser, schools: user.schools }
+        if (schools.length > 0) {
+            payload = { sub: user.id, userName: user.username, schools: schools.map(s => s.school.id) }
+        }
 
         return {
             access_token: await this.jwtService.signAsync(payload)
@@ -43,8 +50,6 @@ export class AuthService {
             email: email,
             password: hash,
             username: userName,
-            TypeUser: TypeUser.Student,
-            admin: false,
             status: true,
         }
 
