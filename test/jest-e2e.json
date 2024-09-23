@@ -4,6 +4,7 @@
   "moduleNameMapper": {
     "@/(.*)$": "<rootDir>/src/$1"
   },
+  "moduleDirectories": ["node_modules", "src", "test/Mock"],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
