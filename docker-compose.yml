@@ -3,7 +3,7 @@ services:
     image: postgres
     container_name: postgresdb
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
@@ -11,7 +11,7 @@ services:
     build:
       context: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       - db
     environment:
@@ -24,3 +24,4 @@ services:
       - PORT=3000
       - JWT_SECRET=secret
       - JWT_EXPIRES_IN=120m
+      - JWT_SECRET_INVITE=supersupersecret
