@@ -1,42 +1,53 @@
 import { env } from '@/env';
 import { UsersService } from '@/services/user.service';
 import { UserSchoolAssociationService } from '@/services/userSchoolAssociation.service';
+import { GlobalTokenService } from '@/shared/globalTokenService';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class CheckUserMiddleware implements NestMiddleware {
-    constructor(
-        private userSchoolAssociationRepository: UserSchoolAssociationService,
-        private jwtService: JwtService
-    ) {}
+  constructor(
+    private jwtService: JwtService,
+    private readonly globalTokenService: GlobalTokenService,
+  ) {}
 
-    async use(req: any, res: any, next: (error?: Error | any) => void) {
+  async use(req: Request, res: Response, next: (error?: Error | any) => void) {
+    // const routeFreeList = [
+    //   'POST-/school',
+    //   'POST-/association',
+    //   'POST-/association/invite',
+    //   'POST-/association/validtoken',
+    // ];
 
-        if ((req.originalUrl.includes('/association/user/') && req.method === 'GET')) {
-            next();
-            return;
-        }
+    // const mountUrl = req.protocol + '://' + req.get('Host') + req.originalUrl;
+    // const urlRequest = new URL(mountUrl);
 
-        if (req.headers && req.headers.authorization) {
-            var authorization = req.headers.authorization.split(' ')[1];
+    // urlRequest.hash = '';
+    // urlRequest.search = '';
+    // urlRequest.port = '';
 
-            const decoded = await this.jwtService.verifyAsync(
-                authorization, 
-                { 
-                    secret: env.JWT_SECRET
-                });
+    // const validateRoute = req.method + '-' + urlRequest.pathname;
 
-            const schoolId = req.headers['x-schoolid']
+    // if (routeFreeList.includes(validateRoute)) {
+    //   next();
+    //   return;
+    // }
 
-            if (!decoded.schools.includes(schoolId)) {
-                return res.status(403).json({ message: 'Não autorizado' });
-            }
-            
-            next();
-            return;
-        }
+    if (req.headers.authorization) {
+      var authorization = req.headers.authorization.split(' ')[1];
 
-        return res.status(403).json({ message: 'Não autorizado' });
+      const decoded = await this.jwtService.verifyAsync(authorization, {
+        secret: env.JWT_SECRET,
+      });
+
+      this.globalTokenService.setDecodedToken(decoded);
+
+      next();
+      return;
     }
+
+    return res.status(403).json({ message: 'Não autorizado' });
+  }
 }

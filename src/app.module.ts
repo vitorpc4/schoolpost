@@ -15,6 +15,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { UserSchoolAssociationController } from './user-school-association/controllers/association.controller';
 import { UserSchoolAssociationModule } from './user-school-association/user-school-association.module';
 import { CheckUserMiddleware } from './middleware/CheckUser.middleware';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -47,13 +48,15 @@ import { CheckUserMiddleware } from './middleware/CheckUser.middleware';
     SchoolModule,
     AuthModule,
     UserSchoolAssociationModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CheckUserMiddleware)
-      .forRoutes('school', 'users', 'posts', 'association');
+    consumer
+      .apply(CheckUserMiddleware)
+      .forRoutes('school', 'user', 'posts', 'association');
   }
 }

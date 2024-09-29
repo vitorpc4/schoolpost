@@ -1,7 +1,17 @@
-
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
-import { HttpAdapterHost } from "@nestjs/core";
+import { env } from '@/env';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { TokenExpiredError } from '@nestjs/jwt';
+import { TypeORMError } from 'typeorm';
+import { ZodError } from 'zod';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -14,17 +24,28 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const ctx = host.switchToHttp();
 
-    const httpStatus =
+    let httpStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-    
-    let msg = '';
-    
+
+    let msg = 'Opps, algo deu errado';
+
     if (exception instanceof TokenExpiredError) {
-        msg = "Token expirada, realize o login novamente";
+      msg = 'Token expirada, realize o login novamente';
     }
 
+    if (exception instanceof HttpException) {
+      msg = exception.getResponse()['message'];
+    }
+
+    if (env.NODE_ENV === 'development') {
+      console.error(exception);
+
+      if (exception instanceof TypeORMError) {
+        msg = exception.message;
+      }
+    }
 
     const responseBody = {
       statusCode: httpStatus,

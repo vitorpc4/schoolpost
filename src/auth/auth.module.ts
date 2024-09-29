@@ -15,8 +15,8 @@ import { UserSchoolAssociationModule } from '@/user-school-association/user-scho
     JwtModule.register({
       global: true,
       secret: env.JWT_SECRET,
-      signOptions: { expiresIn: env.JWT_EXPIRES_IN }
-    })
-  ]
+      signOptions: { expiresIn: env.JWT_EXPIRES_IN },
+    }),
+  ],
 })
 export class AuthModule {}
