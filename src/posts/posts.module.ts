@@ -6,11 +6,16 @@ import { PostController } from './controller/post.controller';
 import { School } from '@/entities/models/school.entity';
 import { PostsService } from '@/services/post.service';
 import { UserSchoolAssociationModule } from '@/user-school-association/user-school-association.module';
+import { SharedModule } from '@/shared/shared.module';
 
 @Module({
-  imports: [UserSchoolAssociationModule, TypeOrmModule.forFeature([Post, User, School])],
+  imports: [
+    UserSchoolAssociationModule,
+    TypeOrmModule.forFeature([Post, User, School]),
+    SharedModule,
+  ],
   providers: [PostsService],
   controllers: [PostController],
-  exports: [PostsService]
+  exports: [PostsService],
 })
 export class PostsModule {}

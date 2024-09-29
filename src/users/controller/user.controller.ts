@@ -1,9 +1,4 @@
 import { AuthGuard } from '@/auth/auth.guard';
-import { ISchool } from '@/entities/interfaces/school.interface';
-import { IUser } from '@/entities/interfaces/user.interface';
-import { TypeUser } from '@/entities/models/userSchoolAssociation.entity';
-import { ZodValidationPipe } from '@/pipe/zod-validation.pipe';
-import { SchoolsService } from '@/services/school.service';
 import { UsersService } from '@/services/user.service';
 import {
   Body,
@@ -14,71 +9,61 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
-import { z } from 'zod';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Response, Request } from 'express';
+import { createUserDTO } from '../DTOS/createUser.dto';
+import { UpdateUserDTO } from '../DTOS/updateUser.dto';
+import { GetUserByIdDTO } from '../DTOS/getUserById.dto';
+import { GetAllUsersDTO } from '../DTOS/getAllUsers.dto';
+import { env } from '@/env';
+import { GlobalTokenService } from '@/shared/globalTokenService';
 
-const createUserScheme = z.object({
-  username: z.string(),
-  email: z.string().email(),
-  password: z.string(),
-  status: z.boolean().default(true),
-});
-
-const updateUserScheme = z.object({
-  username: z.string(),
-  email: z.string().email(),
-  password: z.string(),
-  status: z.boolean()
-});
-
-const getUsersByIdScheme = z.object({
-  id: z.coerce.number(),
-});
-
-const getAllUsers = z.object({
-  limit: z.coerce.number().default(10),
-  page: z.coerce.number().default(1),
-});
-
-type CreateUser = z.infer<typeof createUserScheme>;
-type GetUserById = z.infer<typeof getUsersByIdScheme>;
-type Updateuser = z.infer<typeof updateUserScheme>;
-type GetAllUsers = z.infer<typeof getAllUsers>;
-
-
+@ApiTags('User')
 @UseGuards(AuthGuard)
+@ApiSecurity('bearerAuth')
 @Controller('user')
 export class UserController {
   constructor(
     private usersServices: UsersService,
+    private readonly globalTokenService: GlobalTokenService,
   ) {}
 
   @Get()
-  async getAllUser(
-    @Query(new ZodValidationPipe(getAllUsers)) { page, limit }: GetAllUsers,
-  ) {
-    return await this.usersServices.findAll(page, limit);
+  async getAllUser(@Query() { page, limit }: GetAllUsersDTO) {
+    const users = await this.usersServices.findAll(page, limit);
+    const result = users.map((user) => {
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        status: user.status,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+    });
+
+    return result;
   }
 
   @Get(':id')
-  async getUserById(
-    @Param(new ZodValidationPipe(getUsersByIdScheme)) { id }: GetUserById,
-  ) {
+  async getUserById(@Param() { id }: GetUserByIdDTO, @Req() request: Request) {
+    const decodedToken = this.globalTokenService.getDecodedToken();
+
+    if (decodedToken.sub !== id) {
+      return { message: 'User Not Authorized To get this information' };
+    }
+
     return await this.usersServices.findById(id);
   }
 
   @Post()
   async createUser(
-    @Body(new ZodValidationPipe(createUserScheme))
-    {
-      username,
-      email,
-      password,
-      status
-    }: CreateUser,
+    @Body()
+    { username, email, password, status }: createUserDTO,
     @Res() response: Response,
   ) {
     const result = await this.usersServices.create({
@@ -93,25 +78,33 @@ export class UserController {
 
   @Put(':id')
   async updateUser(
-    @Param(new ZodValidationPipe(getUsersByIdScheme)) { id }: GetUserById,
-    @Body(new ZodValidationPipe(updateUserScheme))
-    { username, email, status }: Updateuser,
-    @Res() response: Response,) {
-      let user = (await this.usersServices.findById(id))
-      
-      if (!user) {
-        return response.status(404).json({ message: 'User not found' });
-      }
+    @Param() { id }: GetUserByIdDTO,
+    @Body()
+    { username, email, status }: UpdateUserDTO,
+    @Res() response: Response,
+    @Req() request: Request,
+  ) {
+    const decodedToken = this.globalTokenService.getDecodedToken();
 
-      user.id = id;
-      user.username = username;
-      user.email = email;
-      user.status = status;
-      user.updatedAt = new Date();
+    if (decodedToken.sub !== id) {
+      return { message: 'User Not Authorized To get this information' };
+    }
 
-      const result = await this.usersServices.update(user);
+    let user = await this.usersServices.findById(id);
 
-      return response.status(200).json(result);
+    if (!user) {
+      return response.status(404).json({ message: 'User not found' });
+    }
+
+    user.id = id;
+    user.username = username;
+    user.email = email;
+    user.status = status;
+    user.updatedAt = new Date();
+
+    const result = await this.usersServices.update(user);
+
+    return response.status(200).json(result);
   }
 
   @Delete(':id')

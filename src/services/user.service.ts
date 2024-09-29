@@ -1,6 +1,6 @@
 import { IUser } from '@/entities/interfaces/user.interface';
 import { User } from '@/entities/models/user.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -19,18 +19,26 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<IUser> {
-    return await this.userRepository.findOneBy({ id });
+    const user = this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
 
   async findUserByEmail(email: string): Promise<IUser> {
-    const user = await this.userRepository.find({
-      where: {
-        email: email
-      }
-    }).then((res) => {
-      return res
-    })
-    return user[0]
+    const user = await this.userRepository
+      .find({
+        where: {
+          email: email,
+        },
+      })
+      .then((res) => {
+        return res;
+      });
+    return user[0];
   }
 
   async create(user: IUser): Promise<IUser> {

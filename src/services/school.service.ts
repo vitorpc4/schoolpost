@@ -1,6 +1,6 @@
 import { ISchool } from '@/entities/interfaces/school.interface';
 import { School } from '@/entities/models/school.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -19,7 +19,13 @@ export class SchoolsService {
   }
 
   async findById(id: string): Promise<ISchool> {
-    return await this.schoolRepository.findOneBy({ id });
+    const school = await this.schoolRepository.findOneBy({ id });
+
+    if (!school) {
+      throw new NotFoundException('School not found');
+    }
+
+    return school;
   }
 
   async create(school: ISchool): Promise<ISchool> {
@@ -30,7 +36,7 @@ export class SchoolsService {
     return await this.schoolRepository.save(school);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     await this.schoolRepository.delete(id);
   }
 }
