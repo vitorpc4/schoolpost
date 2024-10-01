@@ -14,7 +14,7 @@ async function bootstrap() {
     .setDescription('API para criação de posts')
     .setVersion('1.0')
     .addTag('Post')
-    .addTag('UserSchoolAssociation')
+    .addTag('Association')
     .addTag('User')
     .addTag('School')
     .addTag('Auth')

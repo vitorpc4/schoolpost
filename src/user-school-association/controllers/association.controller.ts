@@ -30,7 +30,7 @@ import TokenProvider from '@/Utils/InviteToken';
 import ValidToken from '@/Utils/validToken';
 import { env } from '@/env';
 import { GlobalTokenService } from '@/shared/globalTokenService';
-@ApiTags('UserSchoolAssociation')
+@ApiTags('Association')
 @UseGuards(AuthGuard)
 @Controller('association')
 export class UserSchoolAssociationController {
