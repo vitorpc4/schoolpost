@@ -132,7 +132,7 @@ Para isso execute os seguintes passos
 
 6. **Acesso garantido**: A partir do próximo login, ele terá acesso aos recursos da nova escola.
 
-# Entendo a token
+# Compreendendo a token
 
 - A token de segurança é um JWT Bearer gerado com base na seed informada no arquivo `.env`. Se necessário, é possível alterá-la por questões de segurança para o próximo build.
 - O payload da token contém informações de segurança utilizadas ao longo do projeto, como:
