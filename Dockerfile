@@ -43,6 +43,8 @@ RUN echo "JWT_SECRET_INVITE=${JWT_SECRET_INVITE}"
 
 RUN npm install @babel/plugin-proposal-decorators @babel/plugin-proposal-class-properties
 
+RUN npm install -g @nestjs/cli
+
 RUN npm run build
 
 EXPOSE ${PORT}
