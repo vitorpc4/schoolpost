@@ -41,8 +41,6 @@ RUN echo "JWT_SECRET=${JWT_SECRET}"
 RUN echo "JWT_EXPIRES_IN=${JWT_EXPIRES_IN}"
 RUN echo "JWT_SECRET_INVITE=${JWT_SECRET_INVITE}"
 
-RUN npm install @babel/plugin-proposal-decorators @babel/plugin-proposal-class-properties
-
 RUN npm run build
 
 EXPOSE ${PORT}
