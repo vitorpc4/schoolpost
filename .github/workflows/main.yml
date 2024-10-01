@@ -20,7 +20,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker build -t $DOCKER_USERNAME/schoolpost:latest \
+          docker build --no-cache -t $DOCKER_USERNAME/schoolpost:latest \
             --build-arg NODE_ENV=${{ secrets.NODE_ENV }} \
             --build-arg DATABASE_HOST=${{ secrets.DATABASE_HOST }} \
             --build-arg DATABASE_USER=${{ secrets.DATABASE_USER }} \
