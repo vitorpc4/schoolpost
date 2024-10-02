@@ -14,27 +14,6 @@ export class CheckUserMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: (error?: Error | any) => void) {
-    // const routeFreeList = [
-    //   'POST-/school',
-    //   'POST-/association',
-    //   'POST-/association/invite',
-    //   'POST-/association/validtoken',
-    // ];
-
-    // const mountUrl = req.protocol + '://' + req.get('Host') + req.originalUrl;
-    // const urlRequest = new URL(mountUrl);
-
-    // urlRequest.hash = '';
-    // urlRequest.search = '';
-    // urlRequest.port = '';
-
-    // const validateRoute = req.method + '-' + urlRequest.pathname;
-
-    // if (routeFreeList.includes(validateRoute)) {
-    //   next();
-    //   return;
-    // }
-
     if (req.headers.authorization) {
       var authorization = req.headers.authorization.split(' ')[1];
 
