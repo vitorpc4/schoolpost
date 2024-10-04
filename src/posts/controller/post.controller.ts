@@ -129,10 +129,10 @@ export class PostController {
 
   @Get('find/school')
   async getPostByKeyWord(
-    @Query()
-    { search }: GetPostByKeyWordDTO,
+    @Query() { search }: GetPostByKeyWordDTO,
     @Query() { page, limit }: GetAllPostDTO,
     @Headers() { schoolid }: headerDTO,
+    @Res() response: Response,
   ) {
     const decoded = this.globalTokenService.getDecodedToken();
 
@@ -147,12 +147,14 @@ export class PostController {
 
     const getAssociationsIds = result.map((item) => item.id);
 
-    return await this.postsService.findPostByKeyWord(
+    const posts = await this.postsService.findPostByKeyWord(
       getAssociationsIds,
       search,
       page,
       limit,
     );
+
+    response.status(200).json(posts);
   }
 
   @Get('finddraft/school')
@@ -161,6 +163,7 @@ export class PostController {
     { search }: GetPostByKeyWordDTO,
     @Query() { page, limit }: GetAllPostDTO,
     @Headers() { schoolid }: headerDTO,
+    @Res() response: Response,
   ) {
     const decoded = this.globalTokenService.getDecodedToken();
 
@@ -182,12 +185,14 @@ export class PostController {
 
     const getAssociationsIds = result.map((item) => item.id);
 
-    return await this.postsService.findPostDraftsByKeyWord(
+    const draftPosts = await this.postsService.findPostDraftsByKeyWord(
       getAssociationsIds,
       search,
       page,
       limit,
     );
+
+    return response.status(200).json(draftPosts);
   }
 
   @Post()
