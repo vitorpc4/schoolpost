@@ -62,7 +62,7 @@ export class SchoolController {
 
     const result = await this.schoolsService.findById(id);
 
-    response.status(200).send(result);
+    return response.status(200).send(result);
   }
 
   @Post()
