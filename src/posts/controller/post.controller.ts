@@ -59,7 +59,7 @@ export class PostController {
 
     const result = await this.postsService.findAll(page, limit, ids);
 
-    response.status(200).json(result);
+    return response.status(200).json(result);
   }
 
   @Get('drafts')
@@ -95,7 +95,7 @@ export class PostController {
       limit,
     );
 
-    response.status(200).json(result);
+    return response.status(200).json(result);
   }
 
   @Get(':id')
@@ -124,7 +124,7 @@ export class PostController {
       }
     }
 
-    response.status(200).json(result);
+    return response.status(200).json(result);
   }
 
   @Get('find/school')
@@ -154,7 +154,7 @@ export class PostController {
       limit,
     );
 
-    response.status(200).json(posts);
+    return response.status(200).json(posts);
   }
 
   @Get('finddraft/school')

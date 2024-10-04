@@ -53,7 +53,7 @@ export class UserSchoolAssociationController {
       .map((x) => x.schoolId);
 
     if (!isAdminInSomeSchool) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to get any information',
       });
     }
@@ -102,13 +102,13 @@ export class UserSchoolAssociationController {
     const schoolFind = decoded.schools.find((x) => x.schoolId == school);
 
     if (!schoolFind) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to invite to this school',
       });
     }
 
     if (!schoolFind.admin) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to create inviteLinks',
       });
     }
@@ -127,7 +127,7 @@ export class UserSchoolAssociationController {
 
     const urlInvite = `${urlBase}/association/validtoken?token=${token}`;
 
-    response.status(201).json({ urlInvite });
+    return response.status(201).json({ urlInvite });
   }
 
   @Post('validtoken')
@@ -183,7 +183,7 @@ export class UserSchoolAssociationController {
       env.JWT_SECRET,
     );
 
-    response.status(200).json({ authorization: newAuthToken });
+    return response.status(200).json({ authorization: newAuthToken });
   }
 
   @Post()
@@ -197,13 +197,13 @@ export class UserSchoolAssociationController {
     const schoolFind = decoded.schools.find((x) => x.schoolId == schoolId);
 
     if (!schoolFind) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to create association',
       });
     }
 
     if (!schoolFind.admin) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to create association',
       });
     }
@@ -239,13 +239,13 @@ export class UserSchoolAssociationController {
     const schoolFind = decoded.schools.find((x) => x.schoolId == schoolId);
 
     if (!schoolFind) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to update association',
       });
     }
 
     if (schoolFind.admin) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to update association',
       });
     }
@@ -286,13 +286,13 @@ export class UserSchoolAssociationController {
     );
 
     if (!schoolFind) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to delete association',
       });
     }
 
     if (!schoolFind.admin) {
-      response.status(HttpStatus.FORBIDDEN).json({
+      return response.status(HttpStatus.FORBIDDEN).json({
         message: 'User not authorized to delete association',
       });
     }
