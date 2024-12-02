@@ -34,6 +34,7 @@ export class AuthService {
     let payload = { sub: user.id, userName: user.username, schools: [] };
 
     const school = schools.map((s) => ({
+      IUserAssociationId: s.id,
       schoolId: s.school.id,
       typeUser: s.typeUser,
       admin: s.admin,

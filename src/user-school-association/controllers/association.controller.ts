@@ -30,6 +30,7 @@ import TokenProvider from '@/Utils/InviteToken';
 import ValidToken from '@/Utils/validToken';
 import { env } from '@/env';
 import { GlobalTokenService } from '@/shared/globalTokenService';
+import { GetAllPostDTO } from '@/posts/DTOS/getAllPost.dto';
 @ApiTags('Association')
 @UseGuards(AuthGuard)
 @Controller('association')
@@ -89,6 +90,37 @@ export class UserSchoolAssociationController {
     }
 
     return await this.userSchoolAssociationService.findAllBySchoolId(id);
+  }
+
+  @Get('user/school/:id')
+  async GetAllUserBySchoolId(
+    @Query() { page, limit }: GetAllPostDTO,
+    @Param() { id }: GetAllByStringDTO,
+    @Res() response: Response,
+  ) {
+    const decoded = this.globalTokenService.getDecodedToken();
+
+    const schoolFind = decoded.schools.find((x) => x.schoolId == id);
+
+    if (!schoolFind) {
+      return response.status(HttpStatus.FORBIDDEN).json({
+        message: 'User not authorized to get this information',
+      });
+    }
+
+    if (!schoolFind.admin) {
+      return response.status(HttpStatus.FORBIDDEN).json({
+        message: 'User not authorized to get this information',
+      });
+    }
+
+    const res = await this.userSchoolAssociationService.getAllUserBySchoolId(
+      id,
+      page,
+      limit,
+    );
+
+    return response.status(200).json(res);
   }
 
   @Post('invite')

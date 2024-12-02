@@ -113,7 +113,11 @@ export class SchoolController {
 
     return response
       .status(201)
-      .json({ schoolId: schoolInfo.schoolId, token: newAuthToken });
+      .json({
+        schoolId: schoolInfo.schoolId,
+        schoolName: name,
+        token: newAuthToken,
+      });
   }
 
   @Put(':id')

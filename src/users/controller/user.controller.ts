@@ -21,6 +21,7 @@ import { GetUserByIdDTO } from '../DTOS/getUserById.dto';
 import { GetAllUsersDTO } from '../DTOS/getAllUsers.dto';
 import { env } from '@/env';
 import { GlobalTokenService } from '@/shared/globalTokenService';
+import { get } from 'http';
 
 @ApiTags('User')
 @UseGuards(AuthGuard)

@@ -62,6 +62,62 @@ export class PostController {
     return response.status(200).json(result);
   }
 
+  @Get('allposts')
+  async GetPublishedPostsAndDrafts(
+    @Query() { page, limit }: GetAllPostDTO,
+    @Headers() { schoolid }: headerDTO,
+    @Res() response: Response,
+  ) {
+    const decoded = this.globalTokenService.getDecodedToken();
+    if (decoded.schools.filter((x) => x.schoolId == schoolid).length == 0) {
+      return response.status(403).json({
+        message: 'User Not Authorized To get this posts',
+      });
+    }
+
+    const associations =
+      await this.userSchoolAssociationService.findAllBySchoolId(schoolid);
+
+    const ids = associations.map((item) => item.id);
+
+    const result = await this.postsService.GetPublishedPostsAndDrafts(
+      page,
+      limit,
+      ids,
+    );
+
+    return response.status(200).json(result);
+  }
+
+  @Get('allposts/search')
+  async GetPublishedPostsAndDraftsByKeyWord(
+    @Query() { search }: GetPostByKeyWordDTO,
+    @Query() { page, limit }: GetAllPostDTO,
+    @Headers() { schoolid }: headerDTO,
+    @Res() response: Response,
+  ) {
+    const decoded = this.globalTokenService.getDecodedToken();
+    if (decoded.schools.filter((x) => x.schoolId == schoolid).length == 0) {
+      return response.status(403).json({
+        message: 'User Not Authorized To get this posts',
+      });
+    }
+
+    const associations =
+      await this.userSchoolAssociationService.findAllBySchoolId(schoolid);
+
+    const ids = associations.map((item) => item.id);
+
+    const result = await this.postsService.GetPublishedPostsAndDraftsByKeyWord(
+      page,
+      limit,
+      ids,
+      search,
+    );
+
+    return response.status(200).json(result);
+  }
+
   @Get('drafts')
   async getAllPostsDrafts(
     @Query() { page, limit }: GetAllPostDTO,

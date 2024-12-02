@@ -8,6 +8,10 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+  });
 
   const config = new DocumentBuilder()
     .setTitle('SchoolPosts API')
