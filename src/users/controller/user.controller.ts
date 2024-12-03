@@ -22,6 +22,10 @@ import { GetAllUsersDTO } from '../DTOS/getAllUsers.dto';
 import { env } from '@/env';
 import { GlobalTokenService } from '@/shared/globalTokenService';
 import { get } from 'http';
+import { createUserAndAssociationDTO } from '../DTOS/createUserAndAssociation.dto';
+import { IUserSchoolAssociation } from '@/entities/interfaces/userSchoolAssociation.interface';
+import { UserSchoolAssociationService } from '@/services/userSchoolAssociation.service';
+import { SchoolsService } from '@/services/school.service';
 
 @ApiTags('User')
 @UseGuards(AuthGuard)
@@ -30,6 +34,8 @@ import { get } from 'http';
 export class UserController {
   constructor(
     private usersServices: UsersService,
+    private associationService: UserSchoolAssociationService,
+    private schoolService: SchoolsService,
     private readonly globalTokenService: GlobalTokenService,
   ) {}
 
@@ -116,5 +122,52 @@ export class UserController {
     await this.usersServices.delete(user);
 
     return response.status(204).send();
+  }
+
+  @Post('createUserAndAssociation')
+  async CreateUserAndAssociation(
+    @Body()
+    {
+      username,
+      email,
+      password,
+      status,
+      schoolId,
+      typeUser,
+      admin,
+    }: createUserAndAssociationDTO,
+    @Res() response: Response,
+  ) {
+    const getUserByEmail = await this.usersServices.findUserByEmail(email);
+
+    if (getUserByEmail) {
+      return response.status(400).json({ message: 'Email already exist' });
+    }
+
+    const user = await this.usersServices.create({
+      username: username,
+      email: email,
+      password: password,
+      status: true,
+      createdAt: new Date(),
+    });
+
+    const school = await this.schoolService.findById(schoolId);
+
+    if (!school) {
+      return response.status(404).json({ message: 'School not found' });
+    }
+
+    const userSchoolAssociation: IUserSchoolAssociation = {
+      user: user,
+      school: school,
+      admin: admin,
+      status: status,
+      typeUser: typeUser,
+    };
+
+    const result = await this.associationService.create(userSchoolAssociation);
+
+    return response.status(201).json();
   }
 }
