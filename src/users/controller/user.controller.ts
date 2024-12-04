@@ -21,11 +21,11 @@ import { GetUserByIdDTO } from '../DTOS/getUserById.dto';
 import { GetAllUsersDTO } from '../DTOS/getAllUsers.dto';
 import { env } from '@/env';
 import { GlobalTokenService } from '@/shared/globalTokenService';
-import { get } from 'http';
 import { createUserAndAssociationDTO } from '../DTOS/createUserAndAssociation.dto';
 import { IUserSchoolAssociation } from '@/entities/interfaces/userSchoolAssociation.interface';
 import { UserSchoolAssociationService } from '@/services/userSchoolAssociation.service';
 import { SchoolsService } from '@/services/school.service';
+import * as bcrypt from 'bcrypt';
 
 @ApiTags('User')
 @UseGuards(AuthGuard)
@@ -58,12 +58,6 @@ export class UserController {
 
   @Get(':id')
   async getUserById(@Param() { id }: GetUserByIdDTO, @Req() request: Request) {
-    const decodedToken = this.globalTokenService.getDecodedToken();
-
-    if (decodedToken.sub !== id) {
-      return { message: 'User Not Authorized To get this information' };
-    }
-
     return await this.usersServices.findById(id);
   }
 
@@ -87,15 +81,19 @@ export class UserController {
   async updateUser(
     @Param() { id }: GetUserByIdDTO,
     @Body()
-    { username, email, status }: UpdateUserDTO,
+    {
+      username,
+      email,
+      status,
+      password,
+      schoolId,
+      admin,
+      typeUser,
+    }: UpdateUserDTO,
     @Res() response: Response,
     @Req() request: Request,
   ) {
     const decodedToken = this.globalTokenService.getDecodedToken();
-
-    if (decodedToken.sub !== id) {
-      return { message: 'User Not Authorized To get this information' };
-    }
 
     let user = await this.usersServices.findById(id);
 
@@ -103,15 +101,39 @@ export class UserController {
       return response.status(404).json({ message: 'User not found' });
     }
 
+    const hash = await bcrypt.hash(password, 10);
+
     user.id = id;
     user.username = username;
     user.email = email;
+    user.password = hash;
     user.status = status;
     user.updatedAt = new Date();
 
     const result = await this.usersServices.update(user);
 
-    return response.status(200).json(result);
+    const association = await this.associationService.findAllByUserId(id);
+
+    const associationByIdAndSchool = association.find(
+      (x) => x.school.id === schoolId,
+    );
+
+    if (!associationByIdAndSchool) {
+      return response.status(404).json({ message: 'Association not found' });
+    }
+
+    associationByIdAndSchool.admin = admin;
+    associationByIdAndSchool.typeUser = typeUser;
+
+    await this.associationService.update(associationByIdAndSchool);
+
+    return response.status(200).json({
+      user: result.id,
+      username: result.username,
+      email: result.email,
+      status: result.status,
+      updatedAt: result.updatedAt,
+    });
   }
 
   @Delete(':id')

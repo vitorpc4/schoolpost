@@ -23,6 +23,10 @@ export class AuthService {
       throw new UnauthorizedException('Usuário não encontrado');
     }
 
+    if (!user.status) {
+      throw new UnauthorizedException('Usuário desativado');
+    }
+
     const isMatch = await bcrypt.compare(pass, user.password);
 
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
