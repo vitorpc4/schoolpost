@@ -329,7 +329,10 @@ export class UserSchoolAssociationController {
       });
     }
 
-    await this.userSchoolAssociationService.delete(id);
+    getAssociation.status = false;
+    getAssociation.updatedAt = new Date();
+
+    await this.userSchoolAssociationService.delete(getAssociation);
 
     return response.status(204).json();
   }

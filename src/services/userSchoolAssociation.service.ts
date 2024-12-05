@@ -93,9 +93,13 @@ export class UserSchoolAssociationService {
         'usa.typeUser',
         'usa.admin',
         'usa.status',
+        's.id',
+        's.name',
       ])
       .where('usa.schoolId = :schoolId', { schoolId })
+      .andWhere('usa.status = true')
       .innerJoin('usa.user', 'u')
+      .innerJoin('usa.school', 's')
       .take(take)
       .skip(skip)
       .getMany();
@@ -108,7 +112,11 @@ export class UserSchoolAssociationService {
         createdAt: x.user.createdAt,
         status: x.user.status,
         updatedAt: x.user.updatedAt,
-        userSchoolAssociation: x,
+        schoolId: x.school.id,
+        name: x.school.name,
+        userSchoolAssociationId: x.id,
+        typeUser: x.typeUser,
+        admin: x.admin,
       };
     });
 
@@ -169,7 +177,7 @@ export class UserSchoolAssociationService {
     );
   }
 
-  async delete(id: number): Promise<void> {
-    await this.userSchoolAssociationRepository.delete(id);
+  async delete(association: IUserSchoolAssociation): Promise<void> {
+    await this.userSchoolAssociationRepository.save(association);
   }
 }
