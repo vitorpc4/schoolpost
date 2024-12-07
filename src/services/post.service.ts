@@ -204,16 +204,41 @@ export class PostsService {
   }
 
   async findById(id: number): Promise<IPost> {
-    const result = await this.postRepository.findOneBy({
-      id: id,
-      status: true,
-    });
+    const query = await this.postRepository
+      .createQueryBuilder('p')
+      .select([
+        'p.id',
+        'p.title',
+        'p.content',
+        'p.is_draft',
+        'p.createdAt',
+        'p.updatedAt',
+        'p.status',
+        'p.userSchoolAssociationId',
+        'u.username',
+      ])
+      .where('p.id = :id', { id: id })
+      .innerJoin('p.userSchoolAssociation', 'usa')
+      .innerJoin('usa.user', 'u')
+      .getRawOne();
 
-    if (!result) {
+    if (!query) {
       throw new NotFoundException('Post not found');
     }
 
-    return result;
+    const post: IPost = {
+      id: query.p_id,
+      title: query.p_title,
+      content: query.p_content,
+      isDraft: query.is_draft,
+      createdAt: new Date(query.p_created_at),
+      updatedAt: new Date(query.p_updated_at),
+      status: query.p_status,
+      username: query.u_username,
+      userSchoolAssociation: query.userSchoolAssociationId,
+    };
+
+    return post;
   }
 
   async create(post: IPost): Promise<IPost> {
@@ -294,8 +319,19 @@ export class PostsService {
 
     const totalPages = Math.ceil(countTotalItems / limit);
 
-    const posts = await this.postRepository
+    const queryPosts = await this.postRepository
       .createQueryBuilder('post')
+      .select([
+        'post.id',
+        'post.title',
+        'post.content',
+        'post.is_draft',
+        'post.createdAt',
+        'post.updatedAt',
+        'post.status',
+        'post.userSchoolAssociationId',
+        'u.username',
+      ])
       .where('post.userSchoolAssociationId IN (:...ids)', {
         ids: associationId,
       })
@@ -308,9 +344,23 @@ export class PostsService {
           }).orWhere('post.content ILIKE :search', { search: `%${search}%` });
         }),
       )
+      .innerJoin('post.userSchoolAssociation', 'usa')
+      .innerJoin('usa.user', 'u')
       .skip(skip)
       .take(take)
-      .getMany();
+      .getRawMany();
+
+    const posts: IPost[] = queryPosts.map((raw) => ({
+      id: raw.post_id,
+      title: raw.post_title,
+      content: raw.post_content,
+      isDraft: raw.is_draft,
+      createdAt: new Date(raw.post_created_at),
+      updatedAt: new Date(raw.post_updated_at),
+      status: raw.post_status,
+      username: raw.u_username,
+      userSchoolAssociation: raw.userSchoolAssociationId,
+    }));
 
     const result: GetAllPostResponse = {
       totalItems: countTotalItems,
