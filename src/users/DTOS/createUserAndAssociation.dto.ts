@@ -2,7 +2,7 @@ import { TypeUser } from '@/entities/models/userSchoolAssociation.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty } from 'class-validator';
 
-export class UpdateUserDTO {
+export class createUserAndAssociationDTO {
   @ApiProperty()
   @IsNotEmpty()
   username: string;
@@ -12,22 +12,22 @@ export class UpdateUserDTO {
   email: string;
 
   @ApiProperty()
-  @IsBoolean()
-  status: boolean;
-
-  @ApiProperty()
   @IsNotEmpty()
   password: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  status: boolean;
 
   @ApiProperty()
   @IsNotEmpty()
   typeUser: TypeUser;
 
   @ApiProperty()
-  @IsBoolean()
-  admin: boolean;
-
-  @ApiProperty()
   @IsNotEmpty()
   schoolId: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  admin: boolean;
 }

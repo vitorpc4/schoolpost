@@ -14,7 +14,7 @@ import { SharedModule } from '@/shared/shared.module';
     TypeOrmModule.forFeature([Post, User, School]),
     forwardRef(() => UserSchoolAssociationModule),
     SharedModule,
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   providers: [SchoolsService],
   controllers: [SchoolController],

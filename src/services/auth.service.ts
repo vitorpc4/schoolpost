@@ -23,6 +23,10 @@ export class AuthService {
       throw new UnauthorizedException('Usuário não encontrado');
     }
 
+    if (!user.status) {
+      throw new UnauthorizedException('Usuário desativado');
+    }
+
     const isMatch = await bcrypt.compare(pass, user.password);
 
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
@@ -34,6 +38,7 @@ export class AuthService {
     let payload = { sub: user.id, userName: user.username, schools: [] };
 
     const school = schools.map((s) => ({
+      IUserAssociationId: s.id,
       schoolId: s.school.id,
       typeUser: s.typeUser,
       admin: s.admin,

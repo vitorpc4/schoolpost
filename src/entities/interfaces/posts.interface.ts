@@ -10,5 +10,6 @@ export interface IPost {
   updatedAt?: Date;
   isDraft: boolean;
   status: boolean;
+  username?: string;
   userSchoolAssociation: IUserSchoolAssociation;
 }

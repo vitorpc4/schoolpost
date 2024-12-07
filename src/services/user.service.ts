@@ -19,7 +19,12 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<IUser> {
-    const user = this.userRepository.findOneBy({ id });
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userSchoolAssociation', 'userSchoolAssociation')
+      .leftJoinAndSelect('userSchoolAssociation.school', 'school')
+      .where('user.id = :id', { id: id })
+      .getOne();
 
     if (!user) {
       throw new NotFoundException('User not found');
