@@ -93,6 +93,7 @@ export class SchoolController {
     await this.userSchoolAssociationService.create(association);
 
     const schoolInfo = {
+      IUserAssociationId: association.id,
       schoolId: createsSchool.id,
       typeUser: TypeUser.Professor,
       admin: true,
@@ -111,13 +112,11 @@ export class SchoolController {
       env.JWT_SECRET,
     );
 
-    return response
-      .status(201)
-      .json({
-        schoolId: schoolInfo.schoolId,
-        schoolName: name,
-        token: newAuthToken,
-      });
+    return response.status(201).json({
+      schoolId: schoolInfo.schoolId,
+      schoolName: name,
+      token: newAuthToken,
+    });
   }
 
   @Put(':id')
