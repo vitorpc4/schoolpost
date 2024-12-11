@@ -166,10 +166,12 @@ export class UserController {
       return response.status(400).json({ message: 'Email already exist' });
     }
 
+    const hash = await bcrypt.hash(password, 10);
+
     const user = await this.usersServices.create({
       username: username,
       email: email,
-      password: password,
+      password: hash,
       status: true,
       createdAt: new Date(),
     });
