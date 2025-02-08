@@ -40,6 +40,7 @@ export class AuthService {
     const school = schools.map((s) => ({
       IUserAssociationId: s.id,
       schoolId: s.school.id,
+      name: s.school.name,
       typeUser: s.typeUser,
       admin: s.admin,
     }));
