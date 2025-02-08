@@ -95,6 +95,7 @@ export class SchoolController {
     const schoolInfo = {
       IUserAssociationId: association.id,
       schoolId: createsSchool.id,
+      name: createsSchool.name,
       typeUser: TypeUser.Professor,
       admin: true,
     };
